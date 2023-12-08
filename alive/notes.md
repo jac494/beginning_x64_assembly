@@ -25,3 +25,33 @@ Dump of assembler code for function main:
 End of assembler dump.
 (gdb)
 ```
+
+Examine string at `0x40401c` (from output above, this should be "Hello, world!\n")
+
+```txt
+(gdb) disassemble main
+Dump of assembler code for function main:
+=> 0x0000000000401110 <+0>:     push   rbp
+<snip>
+   0x000000000040111e <+14>:    movabs rsi,0x40401c
+<snip>
+End of assembler dump.
+(gdb) x/s 0x40401c
+0x40401c <msg1>:        "Hello, world!\n"
+```
+
+...or via reference to the `msg1` variable:
+
+```txt
+(gdb) disassemble main
+Dump of assembler code for function main:
+=> 0x0000000000401110 <+0>:     push   rbp
+<snip>
+   0x000000000040111e <+14>:    movabs rsi,0x40401c
+<snip>
+End of assembler dump.
+(gdb) x/s 0x40401c
+0x40401c <msg1>:        "Hello, world!\n"
+(gdb) x/s &msg1
+0x40401c <msg1>:        "Hello, world!\n"
+```
