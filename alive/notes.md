@@ -55,3 +55,109 @@ End of assembler dump.
 (gdb) x/s &msg1
 0x40401c <msg1>:        "Hello, world!\n"
 ```
+
+* `x/s`: e**x**amine **s**tring?
+* `x/dw`: e**x**amine **d**ecimal **w**ord?
+* `x/xw`: e**x**amine he**x** **w**ord?
+
+Trying to get additional characters/bytes out of examine:
+
+```txt
+(gdb) x/s 0x40401c
+0x40401c <msg1>:        "Hello, world!\n"
+(gdb) x/xw 0x40401c
+0x40401c <msg1>:        0x6c6c6548
+(gdb) x/x 0x40401c
+0x40401c <msg1>:        0x6c6c6548
+(gdb) x/xb 0x40401c
+0x40401c <msg1>:        0x48
+(gdb) x/xb 0x40401c + f                       # nope!
+No symbol "f" in current context.
+(gdb) x/xb 0x40402b
+0x40402b <msg2>:        0x41
+(gdb) x/s 0x40402b
+0x40402b <msg2>:        "Alive and Kicking!\n"
+(gdb) x/xb 0x40402b
+0x40402b <msg2>:        0x41
+(gdb) x/x2b 0x40402b                          # nope!
+Invalid number "2b".
+(gdb) x/xb2 0x40402b                          # nope!
+A syntax error in expression, near `0x40402b'.
+(gdb) x/2xb 0x40402b                          # SUCCESS!!
+0x40402b <msg2>:        0x41    0x6c
+(gdb)
+```
+
+From internal help menu in gdb (`help x`):
+
+```txt
+(gdb) help x
+Examine memory: x/FMT ADDRESS.
+ADDRESS is an expression for the memory address to examine.
+FMT is a repeat count followed by a format letter and a size letter.
+Format letters are o(octal), x(hex), d(decimal), u(unsigned decimal),
+  t(binary), f(float), a(address), i(instruction), c(char), s(string)
+  and z(hex, zero padded on the left).
+Size letters are b(byte), h(halfword), w(word), g(giant, 8 bytes).
+The specified number of objects of the specified size are printed
+according to the format.  If a negative number is specified, memory is
+examined backward from the address.
+
+Defaults for format and size letters are those previously used.
+Default count is 1.  Default address is following last thing printed
+with this command or "print".
+(gdb)
+```
+
+* FMT is a repeat count followed by a format letter and a size letter.
+* Format letters are:
+  * o(octal)
+  * x(hex)
+  * d(decimal)
+  * u(unsigned decimal)
+  * t(binary)
+  * f(float)
+  * a(address)
+  * i(instruction)
+  * c(char)
+  * s(string)
+  * z(hex, zero padded on the left)
+* Size letters are:
+  * b(byte)
+  * h(halfword)
+  * w(word)
+  * g(giant, 8 bytes)
+
+Now for examining `radius` and `pi`
+
+```txt
+; from 'alive.asm'
+section .data
+    <snip>
+    radius  dq  357     ; no string, not displayable?
+    pi      dq  3.14    ; no string, not displayable?
+
+(gdb) x/dw &radius
+0x40403f <radius>:      357
+(gdb) x/xw &radius
+0x40403f <radius>:      0x00000165
+(gdb) x/fg &pi
+0x404047 <pi>:  3.1400000000000001
+(gdb) x/fx &pi
+0x404047 <pi>:  0x40091eb851eb851f
+(gdb)
+```
+
+Seeing how these numbers are stored via a look at `alive.lst`:
+
+```txt
+7 00000023 6501000000000000    radius  dq  357    ; no string, not displayable?
+8 0000002B 1F85EB51B81E0940    pi      dq  3.14   ; no string, not displayable?
+```
+
+we can see that they're stored in reverse order (little-endian)
+
+| name   | defined value | hex value            | stored value (little-endian)   |
+| ------ | ------------- | -------------------- | ------------------------------ |
+| radius | 357 (decimal) | `0x0165`             | `6501000000000000`             |
+| pi     | 3.14 (float)  | `0x40091eb851eb851f` | `1F85EB51B81E0940`             |
