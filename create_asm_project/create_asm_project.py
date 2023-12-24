@@ -19,7 +19,7 @@ main:
     push rbp       ; prologue
     mov rbp,rsp
     ; program here
-    mov rax,0     ; success exit code
+    mov rax,0      ; success exit code
     mov rsp, rbp   ; epilogue
     pop rbp
     ret
