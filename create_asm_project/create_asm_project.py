@@ -6,7 +6,7 @@ import click
 
 MAKEFILE_TEMPLATE = """#makefile for {progname}.asm
 {progname}: {progname}.o
-	gcc -o {progname} {progname}.o -no-pie
+	gcc -o ../bin/{progname} {progname}.o -no-pie
 {progname}.o: {progname}.asm
 	nasm -f elf64 -g -F dwarf {progname}.asm -l {progname}.lst
 """
