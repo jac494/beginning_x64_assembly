@@ -8,7 +8,7 @@ MAKEFILE_TEMPLATE = """#makefile for {progname}.asm
 {progname}: {progname}.o
 	gcc -o {progname} {progname}.o -no-pie
 {progname}.o: {progname}.asm
-	nasm -f elf64 -g -F dwarf {progname}.asm -l move.lst
+	nasm -f elf64 -g -F dwarf {progname}.asm -l {progname}.lst
 """
 BASIC_ASM_TEMPLATE = """; {progname}.asm
 section .data
@@ -16,15 +16,12 @@ section .bss
 section .text
     global main
 main:
-push rbp
-mov rbp,rsp
-
+    push rbp       ; prologue
+    mov rbp,rsp
     ; program here
-
-mov rsp, rbp
-pop rbp
-
-ret
+    mov rsp, rbp   ; epilogue
+    pop rbp
+    ret
 """
 DEFAULT_BASE_DIRECTORY = "/home/jac494/Projects/beginning_x64_assembly/"
 
